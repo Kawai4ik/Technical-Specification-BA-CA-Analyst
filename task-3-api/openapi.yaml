@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: User Registration API
+  version: 1.0.0
+  description: API для регистрации пользователя
+
+paths:
+  /api/v1/auth/register:
+    post:
+      summary: Регистрация пользователя
+      description: Создание нового пользователя в системе
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - username
+                - password
+                - captcha
+              properties:
+                firstName:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                lastName:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 30
+                password:
+                  type: string
+                  minLength: 8
+                  description: >
+                    Должен содержать минимум 1 цифру, 1 заглавную букву,
+                    1 строчную букву и 1 спецсимвол
+                captcha:
+                  type: string
+
+      responses:
+        '201':
+          description: Пользователь успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - userId
+                  - username
+                  - status
+                properties:
+                  userId:
+                    type: string
+                  username:
+                    type: string
+                  status:
+                    type: string
+                    example: SUCCESS
+
+        '400':
+          description: Ошибка валидации или captcha
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '409':
+          description: Пользователь уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - errorCode
+        - message
+      properties:
+        errorCode:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
